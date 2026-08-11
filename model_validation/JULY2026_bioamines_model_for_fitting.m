@@ -17,10 +17,10 @@ samera_data = samera_data0.falciparum_inc_per_1000;
 
 
 %par0 =[6.8   0.2   100     50     3  1000];
-par0 = [7.4 0.1 304 308 1 500];
+par0 = [7.4 0.1 304 308 1 1500];
 
-ubs = [9  0.1   1000    500     1   1000];
-lbs = [6   0.1   0      0     1   1];
+ubs = [9  0.2   1000    500     1   1500];
+lbs = [6   0.2   0      0     1   1500];
 
 %
 %par0 = [8 .5];
@@ -28,7 +28,7 @@ lbs = [6   0.1   0      0     1   1];
 %ubs = [10 1];
 %lbs = [1 0];
 
-t0_vec = 64;
+t0_vec = 4;
 param_vec = zeros(length(t0_vec),length(par0));
 J_vec = zeros(length(t0_vec),1);
 F_vec = J_vec;
@@ -66,42 +66,24 @@ for i=1:length(t0_vec)
 
 end
 
-% Week 62 or 64
-%save('2026AUG03_model_fitting_multistart_$PAR.mat');
-
-% Week 64 or 66
-% save('2026AUG03_model_fitting_multistart.mat');
-
-save('2026JULY_model_fitting_multistart_4PAR_t60.mat');
 
 function dy = model_fitter(pars, samera_data, t0)
 
     model_output = fitting_function(pars);
     
-    dy = 0.1*model_output(1:length(t0:103))-samera_data(t0:103);
+    dy = 0.1*model_output(1:length(t0:43))-samera_data(t0:43);
 
 
 end
 
 
 
-%% 
 
-% cases_model = fitting_function(param_vec(4,:));
-% 
-% t0=t0_vec(4);
-% 
-% 
-% figure(1)
-% plot((t0:103)-t0, samera_data(t0:103),'or','markersize',4,'markerfacecolor','r')
-% hold on;
-% plot(1:length(t0:103),cases_model(1:length(t0:103)),'b','linewidth',2)
-% hold off;
 
 %%
 figure(11)
 clf;
-plot(1:103,samera_data(1:103),'-ok','markersize',4,'markerfacecolor','k')
+plot(1:43,samera_data(1:43),'-ok','markersize',4,'markerfacecolor','k')
 
 hold on;
 
@@ -109,7 +91,7 @@ for j=1:length(t0_vec)
 
     cases_model = fitting_function(param_vec(j,:));
 
-    plot((t0_vec(j)):103, 0.1*cases_model(1:length(t0_vec(j):103)),'linewidth',2)
+    plot((t0_vec(j)):43, 0.1*cases_model(1:length(t0_vec(j):43)),'linewidth',2)
 
 end
 
@@ -117,11 +99,11 @@ hold off;
 
 plot_dates = samera_data0.month;
 
-set(gca,'xtick',2:4:104,'xticklabel',datestr(plot_dates(2:4:104),'dd-mmm '),'fontsize',14)
+set(gca,'xtick',2:4:44,'xticklabel',datestr(plot_dates(2:4:44),'dd-mmm '),'fontsize',14)
 
-ylabel('malaria incidence ({\itP. falciparum}), Semera')
+ylabel([{'reported {\itP. falciparum} malaria incidence';'Semera'}],'HorizontalAlignment','center')
 xlabel('month')
-xlim([64 104])
+xlim([4 44])
 
 
 % The Below Function contains the same contents as
@@ -615,17 +597,18 @@ function incidence_out = fitting_function(pars)
     %% Calculate Total Cases per Month and fraction of severe case
     y_0 = [31 28 31 30 31 30 31 31 30 31 30 31];
     y_L = [31 29 31 30 31 30 31 31 30 31 30 31];
-    L = [0 0 0 1 0 0 0 1 2];  % 0 for no leap year; 1 for leap year; 2 for final year which has only 7 months
+    %L = [0 0 0 1 0 0 0 1 2];  % 0 for no leap year; 1 for leap year; 2 for final year which has only 7 months
+    L = [0 0 1 2];
     yr = repmat(2017:2025,12,1);
     
     
-    monthly_incidence = zeros(104,1);
+    monthly_incidence = zeros(44,1);
     
     total_incidence = incidence+incidence2;
     
     t0 =1;
     
-    for i=1:104  % i = 1, 13, 25,... is the first month of each year
+    for i=1:44  % i = 1, 13, 25,... is the first month of each year
     
         % this gives us the month associated with the month in i
         k = rem(i-1,12)+1;
